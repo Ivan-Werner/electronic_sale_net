@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinLengthValidator, EmailValidator
 from django.utils import timezone
 from django.urls import reverse
+from config import settings
 
 class NetworkNode(models.Model):
     """Модель звена сети по продаже электроники"""
@@ -63,6 +64,20 @@ class NetworkNode(models.Model):
         auto_now=True,
         verbose_name='Время последнего обновления'
     )
+    employees = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        related_name='network_nodes',
+        verbose_name='Сотрудники'
+    )
+    contact_person = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='contact_for_nodes',
+        verbose_name='Контактное лицо'
+    )
 
     class Meta:
         verbose_name = 'Звено сети'
@@ -110,7 +125,7 @@ class Product(models.Model):
         verbose_name='Дата выхода на рынок'
     )
 
-    # Связь с звеном сети (у одного звена может быть много продуктов)
+    # Связь со звеном сети (у одного звена может быть много продуктов)
     network_node = models.ForeignKey(
         NetworkNode,
         on_delete=models.CASCADE,
