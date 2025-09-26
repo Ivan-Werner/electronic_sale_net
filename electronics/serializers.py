@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import NetworkNode, Product
 
+
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
@@ -68,6 +69,7 @@ class NetworkNodeCreateSerializer(serializers.ModelSerializer):
             'name', 'node_type', 'email', 'country', 'city',
             'street', 'house_number', 'supplier', 'debt_to_supplier'
         ]
+
 
 class NetworkNodeUpdateSerializer(serializers.ModelSerializer):
     """Сериализатор для обновления (можно менять не все поля)"""

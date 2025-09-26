@@ -1,8 +1,8 @@
 from django.db import models
 from django.core.validators import MinLengthValidator, EmailValidator
-from django.utils import timezone
 from django.urls import reverse
 from config import settings
+
 
 class NetworkNode(models.Model):
     """Модель звена сети по продаже электроники"""
@@ -17,14 +17,12 @@ class NetworkNode(models.Model):
         (INDIVIDUAL_ENTREPRENEUR, 'Индивидуальный предприниматель'),
     )
 
-    #Основная информация
     name = models.CharField(
         max_length=255,
         verbose_name='Название звена',
         validators=[MinLengthValidator(2)]
     )
 
-    #Тип звена
     node_type = models.PositiveSmallIntegerField(
         choices=NODE_TYPES,
         verbose_name='Тип звена',

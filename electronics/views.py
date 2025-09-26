@@ -8,8 +8,14 @@ from rest_framework.response import Response
 
 
 from .models import NetworkNode, Product
-from .serializers import NetworkNodeSerializer, NetworkNodeCreateSerializer, NetworkNodeUpdateSerializer, ProductSerializer
-from .filters import NetworkNodeFilter
+from .serializers import (NetworkNodeSerializer,
+                          NetworkNodeCreateSerializer,
+                          NetworkNodeUpdateSerializer,
+                          ProductSerializer,
+                          SupplierSerializer,
+                          SupplierCreateSerializer,
+                          SupplierUpdateSerializer)
+from .filters import NetworkNodeFilter, SupplierFilter
 from .permissions import IsActiveEmployee, IsActiveEmployeeOrReadOnly
 
 
@@ -52,7 +58,7 @@ class SupplierViewSet(viewsets.ModelViewSet):
     queryset = NetworkNode.objects.all().select_related('supplier').prefetch_related('products')
     permission_classes = [IsActiveEmployeeOrReadOnly]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['country', 'city', 'node_type']  # фильтрация по стране
+    filterset_class = SupplierFilter # фильтрация по стране
     search_fields = ['name', 'email', 'city', 'country']
     ordering_fields = ['name', 'country', 'city', 'created_at']
     ordering = ['-created_at']
@@ -72,14 +78,15 @@ class SupplierViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
-    def by_city(self, request):
-        """Фильтрация по городу через query parameter"""
-        city = request.query_params.get('city', None)
-        if city:
-            nodes = NetworkNode.objects.filter(city__iexact=city)
-            serializer = self.get_serializer(nodes, many=True)
-            return Response(serializer.data)
-        return Response({"error": "Укажите параметр city"}, status=400)
+    def by_country(self, request):
+        """Фильтрация по стране"""
+        country = request.query_params.get('country', '').strip()
+        if not country:
+            return Response({"error": "Укажите параметр country"}, status=400)
+
+        suppliers = self.queryset.filter(country__iexact=country)
+        serializer = self.get_serializer(suppliers, many=True)
+        return Response(serializer.data)
 
 
 class ProductViewSet(viewsets.ModelViewSet):
